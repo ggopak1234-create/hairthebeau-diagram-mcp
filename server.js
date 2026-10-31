@@ -10,10 +10,10 @@ const sessions = new Map();
 
 function createDiagramPlan(input) {
   const {
-    cutStyle = "레이어드컷",
-    permStyle = "C컬펌",
-    elevation = "90",
-    technicalNotes = ""
+    cutStyle = "",
+    permStyle = "",
+    elevation = "",
+    technicalNotes = "" 
   } = input;
 
   const known = technicalNotes.trim();
@@ -26,6 +26,7 @@ function createDiagramPlan(input) {
       cut: [
         `커트 스타일: ${cutStyle}`,
         `엘리베이션: ${elevation}° (입력값, 적용 구간 확인 필요)`,
+         : "엘리베이션: 미입력 — 적용 각도 확인 필요",
         "섹션: 정면·측면·후면·탑뷰로 구분해 설계",
         "가이드라인: 디자이너가 기준 길이와 이동 방향 확정",
         "오버다이렉션: 얼굴 주변과 후면 연결 구간별 확인"
@@ -60,9 +61,9 @@ function createMcpServer() {
     "create_hair_diagram_plan",
     "헤어더뷰 커트 및 펌 전문가용·교육용 도해도 설계안을 생성합니다.",
     {
-      cutStyle: z.string().default("레이어드컷"),
-      permStyle: z.string().default("C컬펌"),
-      elevation: z.string().default("90"),
+      cutStyle: z.string().default(""),
+      permStyle: z.string().default(""),
+      elevation: z.string().default(""),
       technicalNotes: z.string().default("")
     },
     async (input) => ({
