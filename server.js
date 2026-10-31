@@ -202,6 +202,17 @@ const app = createServer(async (req, res) => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.sendFile("index.html", {
+    root: "public"
+  });
+});
+
+app.get("/form", (req, res) => {
+  res.sendFile("index.html", {
+    root: "public"
+  });
+});
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`헤어더뷰 도해도 MCP 서버 실행: ${PORT}`);
-});
