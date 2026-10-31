@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>헤어더뷰 AI 도해도 제작기</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f5f6f8; color: #222; font-family: Arial, sans-serif; }
+    main { max-width: 850px; margin: 35px auto; padding: 24px; background: white; border-radius: 18px; }
+    h1 { font-size: 25px; }
+    p { color: #666; line-height: 1.6; }
+    label { display: block; font-weight: bold; margin: 18px 0 7px; }
+    input, select, textarea, button { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 9px; font-size: 15px; }
+    textarea { min-height: 95px; }
+    button { background: #191919; color: white; cursor: pointer; margin-top: 20px; }
+    button:disabled { opacity: .5; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .preview { max-width: 260px; max-height: 300px; object-fit: contain; margin-top: 12px; display: none; }
+    .result { margin-top: 25px; padding: 20px; background: #f7f7f7; border-radius: 12px; }
+    svg { width: 100%; max-width: 600px; background: white; border: 1px solid #ddd; }
+    .small { font-size: 13px; }
+    @media(max-width:600px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>✂️ 헤어더뷰 AI 도해도 제작기</h1>
+  <p>헤어 사진 또는 직접 입력한 시술 정보를 바탕으로 교육용 도해도 초안을 준비합니다.</p>
+
+  <label for="photo">헤어 사진 (선택)</label>
+  <input id="photo" type="file" accept="image/*">
+  <img id="preview" class="preview" alt="선택한 헤어 사진 미리보기">
+
+  <div class="grid">
+    <div>
+      <label for="cut">커트 스타일</label>
+      <input id="cut" placeholder="예: 레이어드컷">
+    </div>
+    <div>
+      <label for="perm">펌 스타일</label>
+      <input id="perm" placeholder="예: C컬펌">
+    </div>
+    <div>
+      <label for="angle">엘리베이션</label>
+      <input id="angle" placeholder="예: 90">
+    </div>
+    <div>
+      <label for="mode">도해도 종류</label>
+      <select id="mode">
+        <option value="both">전문가용 + 교육용</option>
+        <option value="expert">전문가용</option>
+        <option value="beginner">교육용</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="notes">추가 기술 정보</label>
+  <textarea id="notes" placeholder="섹션, 가이드라인, 와인딩 방향 등"></textarea>
+
+  <button id="make">도해도 초안 만들기</button>
+
+  <div id="result" class="result" hidden></div>
+  <p class="small">※ 사진만으로 실제 내부 커트 구조나 펌 시술 과정을 확정할 수 없습니다. 도해도는 교육용 설계 초안입니다.</p>
+</main>
+
+<script>
+  const photo = document.getElementById("photo");
+  const preview = document.getElementById("preview");
+  const result = document.getElementById("result");
+
+  photo.addEventListener("change", () => {
+    const file = photo.files[0];
+    if (!file) {
+      preview.style.display = "none";
+      preview.removeAttribute("src");
+      return;
+    }
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+  });
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;",
+      '"': "&quot;", "'": "&#39;"
+    })[c]);
+  }
+
+  document.getElementById("make").addEventListener("click", () => {
+    const cut = document.getElementById("cut").value.trim();
+    const perm = document.getElementById("perm").value.trim();
+    const angle = document.getElementById("angle").value.trim();
+    const notes = document.getElementById("notes").value.trim();
+    const mode = document.getElementById("mode").value;
+    const hasPhoto = Boolean(photo.files.length);
+
+    if (!hasPhoto && !cut && !perm && !angle && !notes) {
+      alert("사진을 선택하거나 시술 정보를 하나 이상 입력해 주세요.");
+      return;
+    }
+
+    const items = [
+      ["사진", hasPhoto ? "첨부됨 (아직 AI 분석 전)" : "미첨부"],
+      ["커트 스타일", cut || "미입력"],
+      ["펌 스타일", perm || "미입력"],
+      ["엘리베이션", angle ? angle + "°" : "미입력"],
+      ["추가 기술 정보", notes || "미입력"],
+      ["도해도 종류", {
+        both: "전문가용 + 교육용",
+        expert: "전문가용",
+        beginner: "교육용"
+      }[mode]]
+    ];
+
+    result.hidden = false;
+    result.innerHTML = `
+      <h2>도해도 제작 입력 확인</h2>
+      ${items.map(([k,v]) =>
+        `<p><strong>${escapeHtml(k)}:</strong> ${escapeHtml(v)}</p>`
+      ).join("")}
+      <p><strong>현재 단계:</strong> 입력 화면 작동 확인 완료</p>
+      <p>실제 AI 사진 분석과 도해도 이미지 생성은 다음 단계에서 서버에 연결합니다.</p>
+    `;
+  });
+</script>
+</body>
+</html>
